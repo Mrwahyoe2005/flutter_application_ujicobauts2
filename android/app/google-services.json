@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "627324944723",
+    "project_id": "uts-flutter-mrgemini-app",
+    "storage_bucket": "uts-flutter-mrgemini-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:627324944723:android:82717f52ace1ca2d4da1a6",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_ujicobauts2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIAmv_wkIA1KD3hyZPesQXyNMOsPP2_ac"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:627324944723:android:b8b498e3d99a99bf4da1a6",
+        "android_client_info": {
+          "package_name": "com.mrgemini.utsflutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIAmv_wkIA1KD3hyZPesQXyNMOsPP2_ac"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
