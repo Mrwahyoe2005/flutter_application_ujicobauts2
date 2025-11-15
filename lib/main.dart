@@ -1,37 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart'; // File ini otomatis dibuat oleh FlutterFire CLI
-
-// Halaman utama dummy sementara
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("FinTrack - Dashboard"),
-        backgroundColor: Colors.teal,
-      ),
-      body: const Center(
-        child: Text(
-          'Firebase Connected Successfully ✅',
-          style: TextStyle(fontSize: 18),
-        ),
-      ),
-    );
-  }
-}
+import 'package:provider/provider.dart';
+import 'firebase_options.dart';
+import 'providers/auth_provider.dart';
+import 'screens/login_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Inisialisasi Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(const FinTrackApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+      ],
+      child: const FinTrackApp(),
+    ),
+  );
 }
 
 class FinTrackApp extends StatelessWidget {
@@ -40,14 +27,14 @@ class FinTrackApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'FinTrack',
       debugShowCheckedModeBanner: false,
+      title: 'FinTrack',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-        fontFamily: 'Poppins', // ⬅️ Tambahkan baris ini
+        fontFamily: 'Poppins',
         useMaterial3: true,
       ),
-      home: const HomePage(),
+      home: const LoginScreen(), // ✅ langsung ke halaman login
     );
   }
 }
