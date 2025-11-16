@@ -9,16 +9,35 @@ class AuthProvider extends ChangeNotifier {
   User? _user;
   User? get user => _user;
 
-  bool _isLoading = false; // ✅ Tambahan baru
+  bool _isLoading = false;
   bool get isLoading => _isLoading;
+
+  // Tambahan: menyimpan info profil user
+  String? userName;
+  String? userEmail;
+  String? userPhoto;
 
   AuthProvider() {
     _user = _auth.currentUser;
+    if (_user != null) {
+      _updateUserInfo(_user!);
+    }
   }
 
-  // ✅ Fungsi untuk splash screen
+  // ✅ Fungsi internal untuk update info user
+  void _updateUserInfo(User user) {
+    userName = user.displayName;
+    userEmail = user.email;
+    userPhoto = user.photoURL;
+    notifyListeners();
+  }
+
+  // ✅ Cek status login
   Future<User?> checkLoginStatus() async {
     _user = _auth.currentUser;
+    if (_user != null) {
+      _updateUserInfo(_user!);
+    }
     return _user;
   }
 
@@ -46,6 +65,8 @@ class AuthProvider extends ChangeNotifier {
       final userCredential = await _auth.signInWithCredential(credential);
       _user = userCredential.user;
 
+      if (_user != null) _updateUserInfo(_user!);
+
       _isLoading = false;
       notifyListeners();
       return _user;
@@ -66,6 +87,9 @@ class AuthProvider extends ChangeNotifier {
       await _googleSignIn.signOut();
       await _auth.signOut();
       _user = null;
+      userName = null;
+      userEmail = null;
+      userPhoto = null;
       notifyListeners();
     } catch (e) {
       debugPrint('Logout error: $e');

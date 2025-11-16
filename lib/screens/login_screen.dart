@@ -97,25 +97,10 @@ class _LoginScreenState extends State<LoginScreen>
                     },
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 40),
 
                   // ========================
-                  // TEKS FINTRACK
-                  // ========================
-                  const Text(
-                    'FinTrack',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black87,
-                    ),
-                  ),
-
-                  const SizedBox(height: 28),
-
-                  // ========================
-                  // TEKS PENYAMBUT
+                  // TEKS PENYAMBUT (DISIMPAN)
                   // ========================
                   const Text(
                     'Selamat Datang di FinTrack!',
