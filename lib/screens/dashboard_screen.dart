@@ -1,68 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../providers/auth_provider.dart';
+import '../services/firestore_service.dart';
 import 'login_screen.dart';
+import 'transaksi_screen.dart'; // 🔹 tambahkan import ke halaman transaksi
 
-class DashboardScreen extends StatefulWidget {
+class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
-
-  @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
-}
-
-class _DashboardScreenState extends State<DashboardScreen> {
-  double? saldo; // saldo user
-  bool isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadSaldoUser();
-  }
-
-  Future<void> _loadSaldoUser() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final uid = authProvider.user?.uid;
-
-    if (uid == null) {
-      setState(() {
-        isLoading = false;
-      });
-      return;
-    }
-
-    try {
-      final doc = await FirebaseFirestore.instance
-          .collection('user_finance')
-          .doc(uid)
-          .get();
-
-      if (doc.exists) {
-        final data = doc.data();
-        setState(() {
-          saldo = (data?['saldo'] ?? 0).toDouble();
-          isLoading = false;
-        });
-      } else {
-        // Buat dokumen baru jika belum ada
-        await FirebaseFirestore.instance.collection('user_finance').doc(uid).set({
-          'saldo': 12450000, // default saldo awal
-          'createdAt': FieldValue.serverTimestamp(),
-        });
-        setState(() {
-          saldo = 12450000;
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      debugPrint('Gagal mengambil data saldo: $e');
-      setState(() {
-        saldo = 0;
-        isLoading = false;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +48,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                   title: const Text('Konfirmasi Logout'),
-                  content: const Text('Apakah Anda yakin ingin keluar dari akun ini?'),
+                  content:
+                      const Text('Apakah Anda yakin ingin keluar dari akun ini?'),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context, false),
@@ -136,36 +81,58 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
 
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator(color: Colors.teal))
-          : Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        'Halo, $displayName 👋',
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Pantau keuanganmu dengan cerdas!',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  const SizedBox(height: 30),
+      // 🔹 Floating Action Button untuk tambah transaksi
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const TransaksiScreen()),
+          );
+        },
+        backgroundColor: const Color(0xFF009688),
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text(
+          'Tambah Transaksi',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
 
-                  // Kartu saldo dari Firestore
-                  Container(
+      // 🔹 Body Dashboard
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  'Halo, $displayName 👋',
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Pantau keuanganmu dengan cerdas!',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 30),
+
+            // 🔹 Kartu Saldo Real-Time
+            StreamBuilder<double>(
+              stream: FirestoreService().getUserBalance(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       color: const Color(0xFF009688),
@@ -178,59 +145,81 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                       ],
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Saldo Saat Ini',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          saldo == null
-                              ? 'Rp 0'
-                              : 'Rp ${saldo!.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+                    child: const Center(
+                      child: CircularProgressIndicator(color: Colors.white),
                     ),
-                  ),
+                  );
+                }
 
-                  const SizedBox(height: 25),
+                final saldo = snapshot.data ?? 0;
 
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // nanti diarahkan ke halaman statistik
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF009688),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 4,
+                return Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF009688),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12.withValues(alpha: 0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
                       ),
-                      child: const Text(
-                        'Lihat Statistik',
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Saldo Saat Ini',
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
+                          color: Colors.white70,
                           fontSize: 16,
                         ),
                       ),
-                    ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Rp ${saldo.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                );
+              },
+            ),
+
+            const SizedBox(height: 25),
+
+            // 🔹 Tombol ke Statistik
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  // nanti diarahkan ke halaman statistik
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF009688),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 4,
+                ),
+                child: const Text(
+                  'Lihat Statistik',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
               ),
             ),
+          ],
+        ),
+      ),
     );
   }
 }
