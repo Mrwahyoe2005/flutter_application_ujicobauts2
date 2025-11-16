@@ -5,6 +5,7 @@ import '../providers/auth_provider.dart';
 import 'login_screen.dart';
 import 'statistik_screen.dart';
 import 'transaksi_screen.dart';
+import 'news_screen.dart'; // ✅ Tambahan baru
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -219,6 +220,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                     ),
                   ),
+
+                  const SizedBox(height: 14),
+
+                  // 🔹 Tombol ke halaman Berita Keuangan (baru)
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const NewsScreen(),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 3,
+                      ),
+                      child: const Text(
+                        'Berita Keuangan',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.teal,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -272,7 +306,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Rp ${saldo.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
+            'Rp ${saldo.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\\d{1,3})(?=(\\d{3})+(?!\\d))'), (m) => '${m[1]}.')}',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 26,
