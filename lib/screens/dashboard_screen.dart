@@ -5,7 +5,8 @@ import '../providers/auth_provider.dart';
 import 'login_screen.dart';
 import 'statistik_screen.dart';
 import 'transaksi_screen.dart';
-import 'news_screen.dart'; // ✅ Tambahan baru
+import 'news_screen.dart';
+import '../services/notification_service.dart'; // 🔔 Import notifikasi
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -20,7 +21,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
+    _initNotification();
     Future.delayed(Duration.zero, _checkUserFinance);
+  }
+
+  Future<void> _initNotification() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final userName = authProvider.userName ?? "Pengguna";
+
+    // Inisialisasi notifikasi
+    await NotificationService.initialize(context);
+
+    // 🔔 1. Notifikasi pertama: personal welcome
+    await NotificationService.showInstantNotification(
+      title: "Selamat datang kembali, $userName! 👋",
+      body: "Yuk kelola keuanganmu hari ini 💸",
+    );
+
+    // 🔔 2. Notifikasi kedua: muncul setelah 10 detik
+    Future.delayed(const Duration(seconds: 10), () async {
+      await NotificationService.showInstantNotification(
+        title: "💰 Pengingat Keuangan",
+        body: "Catat pengeluaranmu hari ini biar keuangan tetap sehat!",
+      );
+    });
   }
 
   Future<void> _checkUserFinance() async {
@@ -163,7 +187,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   const SizedBox(height: 30),
 
-                  // 🔹 Stream real-time saldo dari transaksi
+                  // 🔹 Stream saldo real-time dari transaksi
                   StreamBuilder<QuerySnapshot>(
                     stream: FirebaseFirestore.instance
                         .collection('users')
@@ -172,8 +196,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         .orderBy('date', descending: true)
                         .snapshots(),
                     builder: (context, snapshot) {
-                      if (snapshot.connectionState ==
-                          ConnectionState.waiting) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(
                             child:
                                 CircularProgressIndicator(color: Colors.teal));
@@ -190,7 +213,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                   const SizedBox(height: 25),
 
-                  // 🔹 Tombol ke halaman Statistik
+                  // 🔹 Tombol ke Statistik
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -223,7 +246,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                   const SizedBox(height: 14),
 
-                  // 🔹 Tombol ke halaman Berita Keuangan (baru)
+                  // 🔹 Tombol ke Berita Keuangan
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(

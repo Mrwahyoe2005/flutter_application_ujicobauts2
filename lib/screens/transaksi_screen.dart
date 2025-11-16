@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/firestore_service.dart';
+import '../services/notification_service.dart'; // 🔹 Tambahan
 
 class TransaksiScreen extends StatefulWidget {
   const TransaksiScreen({super.key});
@@ -13,7 +14,7 @@ class _TransaksiScreenState extends State<TransaksiScreen> {
   final _amountController = TextEditingController();
   final _descController = TextEditingController();
   String _selectedType = 'Pemasukan';
-  bool _isLoading = false; // 🔹 untuk mencegah klik ganda
+  bool _isLoading = false;
 
   Future<void> _saveTransaction() async {
     if (!_formKey.currentState!.validate()) return;
@@ -31,7 +32,7 @@ class _TransaksiScreenState extends State<TransaksiScreen> {
       );
 
       if (mounted) {
-        Navigator.pop(context); // 🔹 langsung tutup setelah sukses
+        Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Transaksi berhasil disimpan!'),
@@ -94,8 +95,9 @@ class _TransaksiScreenState extends State<TransaksiScreen> {
                   final desc = data['description'];
                   final color =
                       type == 'Pemasukan' ? Colors.green : Colors.redAccent;
-                  final icon =
-                      type == 'Pemasukan' ? Icons.arrow_downward : Icons.arrow_upward;
+                  final icon = type == 'Pemasukan'
+                      ? Icons.arrow_downward
+                      : Icons.arrow_upward;
 
                   return Card(
                     shape: RoundedRectangleBorder(
@@ -113,7 +115,7 @@ class _TransaksiScreenState extends State<TransaksiScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            'Rp ${amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}',
+                            'Rp ${amount.toString().replaceAllMapped(RegExp(r'(\\d{1,3})(?=(\\d{3})+(?!\\d))'), (m) => '${m[1]}.')}',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,
@@ -134,7 +136,7 @@ class _TransaksiScreenState extends State<TransaksiScreen> {
             },
           ),
 
-          // 🔹 Dialog tambah transaksi
+          // 🔹 Floating Button Tambah Transaksi
           Align(
             alignment: Alignment.bottomRight,
             child: Padding(
@@ -211,7 +213,7 @@ class _TransaksiScreenState extends State<TransaksiScreen> {
                           ),
                           ElevatedButton(
                             onPressed:
-                                _isLoading ? null : _saveTransaction, // 🔹 disable saat loading
+                                _isLoading ? null : _saveTransaction,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF009688),
                             ),

@@ -11,6 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
 
+  shared_preferences: ^2.3.3
+
   # UI & Icon Packages
   cupertino_icons: ^1.0.8
   google_fonts: ^6.2.1
@@ -26,18 +28,19 @@ dependencies:
   # Firebase Cloud Firestore
   cloud_firestore: ^4.17.5
 
+  # Firebase Messaging & Local Notifications
+  firebase_messaging: ^14.9.4
+  flutter_local_notifications: ^17.1.2
+
   # API (Networking)
   dio: ^5.4.0
-  url_launcher: ^6.3.1   # ✅ Tambahan untuk buka link berita
+  url_launcher: ^6.3.1
 
   # Chart & Data Visualization
   fl_chart: ^0.64.0
 
   # Date & Currency Formatter
   intl: ^0.19.0
-
-  # Firebase Cloud Messaging (notifikasi opsional)
-  firebase_messaging: ^14.9.4
 
 dev_dependencies:
   flutter_test:
