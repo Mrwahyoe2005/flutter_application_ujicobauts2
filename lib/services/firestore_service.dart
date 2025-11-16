@@ -50,7 +50,7 @@ class FirestoreService {
         .delete();
   }
 
-  // 🔹 Tambahan baru: Hitung total saldo user secara real-time
+  // Hitung total saldo user secara real-time
   Stream<double> getUserBalance() {
     if (_user == null) return const Stream.empty();
 
@@ -73,5 +73,36 @@ class FirestoreService {
       }
       return total;
     });
+  }
+
+  // 🔹 Fungsi baru: Ambil total pemasukan & pengeluaran
+  Future<Map<String, double>> getSummaryData() async {
+    if (_user == null) return {'pemasukan': 0, 'pengeluaran': 0};
+
+    final transaksiSnapshot = await _db
+        .collection('users')
+        .doc(_user!.uid)
+        .collection('transactions')
+        .get();
+
+    double totalPemasukan = 0;
+    double totalPengeluaran = 0;
+
+    for (var doc in transaksiSnapshot.docs) {
+      final data = doc.data();
+      final type = data['type'] ?? '';
+      final amount = (data['amount'] ?? 0).toDouble();
+
+      if (type == 'Pemasukan') {
+        totalPemasukan += amount;
+      } else if (type == 'Pengeluaran') {
+        totalPengeluaran += amount;
+      }
+    }
+
+    return {
+      'pemasukan': totalPemasukan,
+      'pengeluaran': totalPengeluaran,
+    };
   }
 }
